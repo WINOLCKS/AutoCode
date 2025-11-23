@@ -1,0 +1,10 @@
+sandbox:
+  timeout_sec: 10
+  max_memory_mb: 100
+agent:
+  max_iterations: 10
+  log_level: INFO
+paths:
+  srs_file: project.srs.md
+  error_history: error_history.json
+  src_dir: src

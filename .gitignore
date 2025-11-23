@@ -1,0 +1,25 @@
+# 虚拟环境
+.venv/
+venv/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# 日志和报告
+logs/
+*.log
+projects/*/reports/*.html  # 可选，如果报告需 commit 则移除
+
+# 构建/分发
+dist/
+build/
+
+# 敏感配置
+config/*.secret.yaml  # 如果有密钥文件
+
+# 其他
+*.tmp
+*.bak
