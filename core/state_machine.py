@@ -3,11 +3,13 @@ import logging
 import subprocess
 from enum import Enum
 from typing import Optional, List, Dict
+import json
 
 from agents.tester import extract_pytest_cases, run_pytest_cases, check_regressions, compute_error_fingerprint
 from agents.self_repair import micro_fix
 from agents.error_book import append_error, backfill_fixed
 from core.srs_handler import load_srs  # 假设 Substep 5 会实现，目前 mock
+from core.code_generator import CodeGenerator  # NEW: 导入 CodeGenerator 用于真实代码生成
 
 logger = logging.getLogger(__name__)
 
@@ -26,17 +28,23 @@ class IterationState:
         srs_path = os.path.join(project_dir, 'project.srs.md')
         self.srs_content: str = load_srs(project_dir)  # mock 加载
         self.test_cases: List[str] = extract_pytest_cases(srs_path)  # 直接传入路径
+        self.code_generator = CodeGenerator()  # NEW: 初始化 CodeGenerator（默认 config_path）
 
     def transition_to_coding(self):
         """从 NEGOTIATING 过渡到 CODING。"""
         self.state = State.CODING
         logger.info("Transitioned to CODING state")
 
-    def run_iteration(self, generated_code: str) -> bool:
-        """运行一次迭代循环。返回是否 PASS。"""
+    def run_iteration(self) -> bool:
         self.iteration += 1
-        self.current_code = generated_code
         logger.info(f"Starting iteration {self.iteration}")
+
+        # MODIFIED: 使用云端 LLM 生成代码，注入 SRS + 账本 + 回归标志 + project_dir
+        history_path = os.path.join(self.project_dir, 'error_history.json')
+        with open(history_path, 'r', encoding='utf-8') as f:
+            error_book = json.load(f)
+        is_regression = len(check_regressions([], history_path)) > 0  # 检查是否有历史回归
+        self.current_code = self.code_generator.generate_code(self.srs_content, error_book, self.project_dir,is_regression)  # MODIFIED: 传入 project_dir
 
         # 步骤1: 在 sandbox 中运行测试
         fresh_errors: List[Dict] = run_pytest_cases(self.test_cases, self.current_code, self.project_dir)
@@ -71,7 +79,7 @@ class IterationState:
                 if fixed:
                     self.current_code = fixed_code
                     backfill_fixed(self.project_dir, err['hash'], self.iteration)
-                    return self.run_iteration(self.current_code)  # 递归重试
+                    return self.run_iteration()  # 递归重试（移除参数）
 
         # 如果未修复或多个错误，继续下一次迭代
         logger.info(f"Iteration {self.iteration} failed, proceeding to next")

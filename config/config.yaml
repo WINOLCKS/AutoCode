@@ -8,3 +8,13 @@ paths:
   srs_file: project.srs.md
   error_history: error_history.json
   src_dir: src
+cloud_llm:
+  provider: openai-compatible  
+  api_key: sk-Es7vcBoepmOZxuvjhZg6aDZk3AujnjErmSq6Hi7xI0poOkRC  
+  model: doubao-seed-1-6-251015  
+  base_url: https://api.newcoin.top  
+  path: /v1/chat/completions  
+  temperature_srs: 0.3  
+  temperature_code: 0.2  
+  temperature_regression: 0.1  
+  timeout: 60  

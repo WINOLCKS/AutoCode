@@ -1,6 +1,8 @@
 import os
 import re
 import logging
+from .utils import LLMClient
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -33,3 +35,32 @@ def parse_srs(content: str) -> dict:
         logger.warning("No test cases found in SRS")
     logger.info(f"Parsed SRS: {len(parsed['test_cases'])} test cases")
     return parsed
+
+import yaml
+from .utils import LLMClient  # 假设已存在
+import os  # NEW: 添加 os 导入，如果未有
+
+class SRSHandler:
+    def __init__(self, config_path='config/config.yaml'):
+        self.config = yaml.safe_load(open(config_path))
+        self.llm = LLMClient(self.config['cloud_llm'])
+
+    def generate_initial_srs(self, user_requirement: str, project_dir: str) -> str:  # MODIFIED: 添加 project_dir 参数
+        prompt = f"基于用户自然语言需求：{user_requirement}\n编写完整的 SRS Markdown 文档，包括原始需求摘录、功能点清单、接口签名和 pytest 格式的验收用例。确保输出格式为 Markdown，且用例在代码块中。"
+        temperature = self.config['cloud_llm']['temperature_srs']
+        srs_content = self.llm.generate(prompt, temperature)
+        srs_path = os.path.join(project_dir, 'project.srs.md')  # MODIFIED: 使用动态路径
+        os.makedirs(os.path.dirname(srs_path), exist_ok=True)  # NEW: 自动创建目录如果不存在
+        with open(srs_path, 'w', encoding='utf-8') as f:
+            f.write(srs_content)
+        return srs_content
+
+    def modify_srs(self, feedback: str, current_srs: str, project_dir: str) -> str:  # MODIFIED: 添加 project_dir 参数
+        prompt = f"当前 SRS：{current_srs}\n用户反馈：{feedback}\n修改 SRS 文档，确保一致性，并更新验收用例。输出完整 Markdown。"
+        temperature = self.config['cloud_llm']['temperature_srs']
+        new_srs = self.llm.generate(prompt, temperature)
+        srs_path = os.path.join(project_dir, 'project.srs.md')  # MODIFIED: 使用动态路径
+        os.makedirs(os.path.dirname(srs_path), exist_ok=True)  # NEW: 自动创建目录如果不存在
+        with open(srs_path, 'w', encoding='utf-8') as f:
+            f.write(new_srs)
+        return new_srs
