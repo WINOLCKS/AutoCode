@@ -1,0 +1,5 @@
+FROM E:\project\codeguardian\Qwen3-8B-Q4_K_M.gguf
+PARAMETER num_ctx 4096
+PARAMETER temperature 0.2
+PARAMETER num_gpu 99
+PARAMETER num_thread 8
