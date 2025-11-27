@@ -1,0 +1,16 @@
+[
+    {
+        "hash": "557fb189275fb6c0fbd619044812bec0dd8cbcf12c9f6c2fbcde770d9a33925d",
+        "first_iter": 1,
+        "fixed_iter": null,
+        "abstract": "IndexError due to missing command-line argument",
+        "case": "def test_add_normal():\n    calc = Calculator()\n    assert calc.add(2, 3) == 5\n    assert calc.add(-1, 1) == 0\n    assert calc.add(0.5, 0.3) == 0.8"
+    },
+    {
+        "hash": "35fd96a74248bde8fe89960f78f88908ffa6be366ccca4561adbb7adf62a5d3d",
+        "first_iter": 1,
+        "fixed_iter": null,
+        "abstract": "IndexError due to missing command-line argument",
+        "case": "def test_multiply_boundary():\n    calc = Calculator()\n    assert calc.multiply(10**6, 10**6) == 10**12\n    assert calc.multiply(0, 999999) == 0\n    assert calc.multiply(-1000, 500) == -500000"
+    }
+]
