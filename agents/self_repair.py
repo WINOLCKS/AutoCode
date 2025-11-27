@@ -17,12 +17,7 @@ logging.config.fileConfig(logging_conf_path)
 
 
 def micro_fix(code: str, error: dict) -> tuple[str, bool]:
-    """
-    使用 Qwen3:8b LLM 尝试微小修复单一错误。
-    - code: 原代码字符串。
-    - error: 单一错误dict，包含'exception'键。
-    返回: (fixed_code: str, is_fixed: bool)
-    """
+
     if not error or 'exception' not in error:
         logging.warning("Invalid error dict, no fix attempted")
         return code, False
@@ -40,7 +35,7 @@ If it's a minor SyntaxError or NameError, fix it and return ONLY the full fixed 
 If you can't fix or it's not minor, return 'NO_FIX'."""
 
     try:
-        response = ollama.generate(model='qwen3:8b', prompt=prompt, options={'temperature': 0.2})  # 低温度确保精确
+        response = ollama.generate(model='qwen3:4b', prompt=prompt, options={'temperature': 0.2, 'num_ctx': 16384})
         fixed_code = response['response'].strip()
         if fixed_code == 'NO_FIX':
             logging.info("LLM: No fix applied")

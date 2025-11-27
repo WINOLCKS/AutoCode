@@ -19,7 +19,7 @@ logging_conf_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'co
 logging.config.fileConfig(logging_conf_path)
 
 # LLM 配置（从 config.yaml 读取，或 hardcode）
-LLM_MODEL = 'qwen3:8b'  # 你的模型
+LLM_MODEL = 'qwen3:4b'  # 你的模型
 LLM_TEMPERATURE = 0.2  # 低温度，确保精确
 
 

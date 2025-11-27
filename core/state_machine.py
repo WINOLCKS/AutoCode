@@ -5,11 +5,14 @@ from enum import Enum
 from typing import Optional, List, Dict
 import json
 
+
 from agents.tester import extract_pytest_cases, run_pytest_cases, check_regressions, compute_error_fingerprint
 from agents.self_repair import micro_fix
 from agents.error_book import append_error, backfill_fixed
 from core.srs_handler import load_srs  # 假设 Substep 5 会实现，目前 mock
+from core.srs_handler import parse_srs  # NEW: 导入 parse_srs 函数
 from core.code_generator import CodeGenerator  # NEW: 导入 CodeGenerator 用于真实代码生成
+from core.code_generator import CodeGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +29,9 @@ class IterationState:
         self.iteration = 0
         self.current_code: Optional[str] = None
         srs_path = os.path.join(project_dir, 'project.srs.md')
-        self.srs_content: str = load_srs(project_dir)  # mock 加载
-        self.test_cases: List[str] = extract_pytest_cases(srs_path)  # 直接传入路径
+        self.srs_content = load_srs(project_dir)
+        parsed = parse_srs(self.srs_content)  # MODIFIED: 调用 parse_srs 以补全用例
+        self.test_cases = parsed['test_cases']
         self.code_generator = CodeGenerator()  # NEW: 初始化 CodeGenerator（默认 config_path）
 
     def transition_to_coding(self):
